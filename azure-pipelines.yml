@@ -31,10 +31,16 @@ steps:
     ArtifactName: 'drop'
     publishLocation: 'Container'
 
+# - task: Bash@3
+#   inputs:
+#     targetType: 'inline'
+#     script: |
+#       # Write your commands here
+
+#       ls $(Build.ArtifactStagingDirectory)
 - task: Bash@3
   inputs:
     targetType: 'inline'
     script: |
-      # Write your commands here
-      ls $(System.DefaultWorkingDirectory)
+
       ls $(Build.ArtifactStagingDirectory)
