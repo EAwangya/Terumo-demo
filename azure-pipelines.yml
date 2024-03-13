@@ -44,3 +44,10 @@ steps:
     script: |
 
       ls $(Build.ArtifactStagingDirectory)
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'terumobct'
+    repository: 'terumobct'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
