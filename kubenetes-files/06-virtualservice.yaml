@@ -1,0 +1,45 @@
+# apiVersion: networking.istio.io/v1alpha3
+# kind: VirtualService
+# metadata:
+#   name: ingress-virtualservice-vp
+# spec:
+#   hosts:
+#   - "*" 
+#   gateways:
+#   - ingress-gateway-vp
+#   http:
+#   - match:
+#     - uri:
+#         prefix: /
+#     route:
+#     - destination:
+#         host: vproapp
+#         port:
+#           number: 8080
+       
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: ingress-virtualservice-vp
+spec:
+  hosts:
+  - "*" #FQDN or LoadBalancer IP to use - mesh below.
+  gateways:
+  - ingress-gateway-vp
+  # - mesh
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: vproapp-svc
+        subset: v1
+      weight: 0
+    - destination:
+        host: vproapp-svc
+        subset: v2
+      weight: 100
+
+        # port:
+        #   number: 8080

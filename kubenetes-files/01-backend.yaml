@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vprodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vprodb
+  template:
+    metadata:
+      labels:
+        app: vprodb
+    spec:
+      containers:
+      - name: vprodb
+        image: eawangya/techharbordb:latest
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "vprodbpass"
+          # valueFrom:
+          #   secretKeyRef:
+          #     name: app-secret
+          #     key: db-pass
+        ports:
+        - containerPort: 3306
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: vprodb
+spec:
+  ports:
+  - port: 3306
+    targetPort: 3306
+  selector:
+    app: vprodb
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpromc
+  labels:
+    app: vpromc
+spec:
+  selector:
+    matchLabels:
+      app: vpromc
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: vpromc
+    spec:
+      containers:
+      - name: vpromc
+        image: memcached
+        ports:
+        - name: vpromc-port
+          containerPort: 11211
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: vprocache01
+spec:
+  ports:
+  - port: 11211
+    targetPort: vpromc-port
+    protocol: TCP
+  selector:
+    app: vpromc
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpromq01
+  labels:
+    app: vpromq01
+spec:
+  selector:
+    matchLabels:
+      app: vpromq01
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: vpromq01
+    spec:
+      containers:
+      - name: vpromq01
+        image: rabbitmq
+        ports:
+        - name: vpromq01-port
+          containerPort: 15672
+        env:
+         - name: RABBITMQ_DEFAULT_PASS
+           value: "guest"
+          #  valueFrom:
+          #    secretKeyRef:
+          #      name: app-secret
+          #      key: rmq-pass
+         - name: RABBITMQ_DEFAULT_USER
+           value: "guest"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: vpromq01
+spec:
+  ports:
+  - port: 15672
+    targetPort: vpromq01-port
+    protocol: TCP
+  selector:
+    app: vpromq01
+
